@@ -168,7 +168,7 @@ class Core(
             suspendMediaWhenInactive = false,
             forceUserScalableContent = context.settings().forceEnableZoom,
             loginAutofillEnabled = context.settings().shouldAutofillLogins,
-            enterpriseRootsEnabled = context.settings().allowThirdPartyRootCerts,
+            enterpriseRootsEnabled = false,
             clearColor = ContextCompat.getColor(
                 context,
                 R.color.fx_mobile_surface,
@@ -194,7 +194,7 @@ class Core(
                 WebContentIsolationStrategy.fromValue(FxNimbus.features.fission.value().isolationStrategy),
             fetchPriorityEnabled = true,
             parallelMarkingEnabled = FxNimbus.features.javascript.value().parallelMarkingEnabled,
-            certificateTransparencyMode = FxNimbus.features.pki.value().certificateTransparencyMode,
+            certificateTransparencyMode = 2,
             postQuantumKeyExchangeEnabled = FxNimbus.features.pqcrypto.value().postQuantumKeyExchangeEnabled,
             dohAutoselectEnabled = FxNimbus.features.doh.value().autoselectEnabled,
             bannedPorts = FxNimbus.features.networkingBannedPorts.value().bannedPortList,

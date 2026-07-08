@@ -350,7 +350,7 @@ android.applicationVariants.configureEach { variant ->
 
     buildConfigField 'String', 'SENTRY_TOKEN', 'null'
     if (!isDebug) {
-        buildConfigField 'boolean', 'CRASH_REPORTING', 'true'
+        buildConfigField 'boolean', 'CRASH_REPORTING', 'false'
         // Reading sentry token from local file (if it exists). In a release task on taskcluster it will be available.
         try {
             def token = new File("${rootDir}/.sentry_token").text.trim()
@@ -361,7 +361,7 @@ android.applicationVariants.configureEach { variant ->
     }
 
     if (!isDebug) {
-        buildConfigField 'boolean', 'TELEMETRY', 'true'
+        buildConfigField 'boolean', 'TELEMETRY', 'false'
     } else {
         buildConfigField 'boolean', 'TELEMETRY', 'false'
     }
@@ -375,25 +375,7 @@ android.applicationVariants.configureEach { variant ->
         buildConfigField 'String', 'BUILD_DATE', '"' + buildDate + '"'
     }
 
-// -------------------------------------------------------------------------------------------------
-// Adjust: Read token from local file if it exists (Only release builds)
-// -------------------------------------------------------------------------------------------------
-
-    project.logger.debug("Adjust token: ")
-
-    if (!isDebug) {
-        try {
-            def token = new File("${rootDir}/.adjust_token").text.trim()
-            buildConfigField 'String', 'ADJUST_TOKEN', '"' + token + '"'
-            project.logger.debug("(Added from .adjust_token file)")
-        } catch (FileNotFoundException ignored) {
-            buildConfigField 'String', 'ADJUST_TOKEN', 'null'
-            project.logger.debug("X_X")
-        }
-    } else {
-        buildConfigField 'String', 'ADJUST_TOKEN', 'null'
-        project.logger.debug("--")
-    }
+    buildConfigField 'String', 'ADJUST_TOKEN', 'null'
 
 // -------------------------------------------------------------------------------------------------
 // MLS: Read token from local file if it exists
@@ -634,7 +616,6 @@ dependencies {
 
     implementation ComponentsDependencies.mozilla_appservices_syncmanager
     implementation libs.accompanist.drawablepainter
-    implementation libs.adjust
     implementation libs.androidx.activity
     implementation libs.androidx.activity.ktx
     implementation libs.androidx.annotation

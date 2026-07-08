@@ -148,7 +148,7 @@ class Settings(
         /**
          * DoH setting is set to "Default", corresponds to TRR_MODE_OFF (0) from GeckoView
          */
-        private const val DOH_SETTINGS_DEFAULT = 0
+        private const val DOH_SETTINGS_DEFAULT = 2
 
         /**
          * DoH setting is set to "Increased", corresponds to TRR_MODE_FIRST (2) from GeckoView
@@ -570,7 +570,7 @@ class Settings(
 
     var isTelemetryEnabled by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_telemetry),
-        default = true,
+        default = false,
     )
 
     var isMarketingTelemetryEnabled by booleanPreference(
@@ -896,7 +896,7 @@ class Settings(
      */
     var isLnaBlockingEnabled by booleanPreference(
         key = appContext.getPreferenceKey(R.string.pref_key_enable_lna_blocking_enabled),
-        default = Config.channel.isNightlyOrDebug,
+        default = true,
     )
 
     /**
@@ -916,7 +916,7 @@ class Settings(
      */
     var isLnaFeatureEnabled by booleanPreference(
         key = appContext.getPreferenceKey(R.string.pref_key_enable_lna_feature_enabled),
-        default = Config.channel.isNightlyOrDebug,
+        default = true,
     )
 
     /**
@@ -1091,7 +1091,7 @@ class Settings(
 
     var shouldUseHttpsOnly by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_https_only),
-        default = false,
+        default = true,
     )
 
     var shouldUseHttpsOnlyInAllTabs by booleanPreference(

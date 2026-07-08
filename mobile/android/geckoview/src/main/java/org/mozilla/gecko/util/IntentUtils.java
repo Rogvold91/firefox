@@ -17,6 +17,8 @@ import android.provider.DocumentsContract;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -199,23 +201,35 @@ public class IntentUtils {
       final String[] split = docId.split(":");
 
       if (split[0].equals("primary")) {
-        // This is the internal storage.
-        final StringBuilder sb =
-            new StringBuilder(Environment.getExternalStorageDirectory().toString());
         if (split.length > 1) {
-          sb.append("/").append(split[1]);
+          try {
+            final File base = Environment.getExternalStorageDirectory().getCanonicalFile();
+            final File resolved = new File(base, split[1]).getCanonicalFile();
+            if (!resolved.getPath().startsWith(base.getPath())) {
+              return null;
+            }
+            return resolved.getPath();
+          } catch (IOException e) {
+            return null;
+          }
         }
-        return sb.toString();
+        return Environment.getExternalStorageDirectory().toString();
       }
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        // This might be sd card. /storage/xxxx-xxxx/...
-        final StringBuilder sb = new StringBuilder(Environment.getStorageDirectory().toString());
-        sb.append("/").append(split[0]);
-        if (split.length > 1) {
-          sb.append("/").append(split[1]);
+        try {
+          final File base = new File(Environment.getStorageDirectory(), split[0]).getCanonicalFile();
+          if (split.length > 1) {
+            final File resolved = new File(base, split[1]).getCanonicalFile();
+            if (!resolved.getPath().startsWith(base.getPath())) {
+              return null;
+            }
+            return resolved.getPath();
+          }
+          return base.getPath();
+        } catch (IOException e) {
+          return null;
         }
-        return sb.toString();
       }
     }
     if (DEBUG) {
