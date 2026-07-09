@@ -24,6 +24,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.car.Car
+import android.car.drivingstate.CarUxRestrictionsManager
 import android.car.VehicleAreaType
 import android.car.VehiclePropertyIds
 import android.car.hardware.CarPropertyValue
@@ -205,6 +206,16 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
     private lateinit var mCar: Car
 
     private lateinit var mCarPropertyManager: CarPropertyManager
+
+    private var mCarUxRestrictionsManager: CarUxRestrictionsManager? = null
+
+    private var requiresDistractionOptimization = false
+
+    private val mUxRestrictionsListener =
+        CarUxRestrictionsManager.OnUxRestrictionsChangedListener { restrictions ->
+            requiresDistractionOptimization = restrictions.isRequiresDistractionOptimization
+            runOnUiThread { pauseAllBrowserActivity() }
+        }
 
     private val mPropertyEventCallback: CarPropertyManager.CarPropertyEventCallback =
         object : CarPropertyManager.CarPropertyEventCallback {
@@ -892,6 +903,7 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         if (::mCarPropertyManager.isInitialized) {
             mCarPropertyManager.unregisterCallback(mPropertyEventCallback)
         }
+        mCarUxRestrictionsManager?.unregisterListener()
         if (::mCar.isInitialized) {
             mCar.disconnect()
         }
@@ -1527,9 +1539,23 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
                     0F,
                 )
 
+                mCarUxRestrictionsManager =
+                    car.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE) as? CarUxRestrictionsManager
+                mCarUxRestrictionsManager?.registerListener(mUxRestrictionsListener)
+                mCarUxRestrictionsManager?.currentCarUxRestrictions?.let { restrictions ->
+                    requiresDistractionOptimization = restrictions.isRequiresDistractionOptimization
+                }
+
                 runOnUiThread { updateDrivingDialogVisibility() }
             },
         )
+    }
+
+    private fun pauseAllBrowserActivity() {
+        updateDrivingDialogVisibility()
+        components.core.store.state.tabs.forEach {
+            it.mediaSessionState?.controller?.pause()
+        }
     }
 
     private fun updateDrivingDialogVisibility() {
@@ -1537,8 +1563,14 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         val blockingView = binding.root.findViewById<View>(R.id.driving_dialog)
         blockingView?.let {
             it.visibility = if (needBlocking) View.VISIBLE else View.GONE
-            it.findViewById<Button>(R.id.allow)?.setOnClickListener {
-                blockingView.visibility = View.GONE
+            val allowButton = it.findViewById<Button>(R.id.allow)
+            if (BuildConfig.DEBUG) {
+                allowButton?.visibility = View.VISIBLE
+                allowButton?.setOnClickListener {
+                    blockingView.visibility = View.GONE
+                }
+            } else {
+                allowButton?.visibility = View.GONE
             }
             it.findViewById<Button>(R.id.cancel)?.setOnClickListener {
                 finish()
@@ -1547,16 +1579,11 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
     }
 
     private fun needToRestrictInstaller(): Boolean {
-        if (!::mCarPropertyManager.isInitialized) {
-            return false
+        if (requiresDistractionOptimization) {
+            return true
         }
 
-        val allowedByUser = android.provider.Settings.System.getInt(
-            contentResolver,
-            ALLOW_VIDEO_DRIVING,
-            0,
-        )
-        if (allowedByUser == 1) {
+        if (!::mCarPropertyManager.isInitialized) {
             return false
         }
 
@@ -1577,8 +1604,6 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
     }
 
     companion object {
-        private const val ALLOW_VIDEO_DRIVING = "allow_video"
-
         const val OPEN_TO_BROWSER = "open_to_browser"
         const val OPEN_TO_BROWSER_AND_LOAD = "open_to_browser_and_load"
         const val OPEN_TO_SEARCH = "open_to_search"

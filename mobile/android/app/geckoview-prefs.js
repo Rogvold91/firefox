@@ -375,6 +375,8 @@ pref("webextensions.storage.sync.kinto", true);
 // Require extensions to be signed (bug 1244329)
 pref("xpinstall.signatures.required", true);
 
+pref("dom.serviceWorkers.enabled", false);
+
 pref("xpinstall.whitelist.add", "https://addons.mozilla.org");
 pref("xpinstall.whitelist.fileRequest", false);
 

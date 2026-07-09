@@ -5,6 +5,7 @@
 package org.mozilla.fenix
 
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -105,6 +106,9 @@ class IntentReceiverActivity : Activity() {
     }
 
     private fun persistUriReadPermission(uri: Uri) {
+        if (uri.scheme != ContentResolver.SCHEME_CONTENT) {
+            return
+        }
         try {
             val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION
             contentResolver.takePersistableUriPermission(uri, takeFlags)
