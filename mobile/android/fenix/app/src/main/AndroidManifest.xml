@@ -952,7 +952,8 @@
         <activity
             android:name="mozilla.telemetry.glean.debug.GleanDebugActivity"
             android:exported="false"
-            tools:node="merge" />
+            tools:node="merge"
+            tools:replace="android:exported" />
 
         <activity
             android:name="mozilla.components.feature.pwa.WebAppLauncherActivity"
