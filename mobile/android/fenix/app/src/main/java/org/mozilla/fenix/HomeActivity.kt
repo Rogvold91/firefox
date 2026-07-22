@@ -5,6 +5,11 @@
 package org.mozilla.fenix
 
 import android.app.assist.AssistContent
+import android.car.Car
+import android.car.VehicleAreaType
+import android.car.VehiclePropertyIds
+import android.car.hardware.CarPropertyValue
+import android.car.hardware.property.CarPropertyManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -23,12 +28,6 @@ import android.view.ActionMode
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.MotionEvent
-import android.car.Car
-import android.car.drivingstate.CarUxRestrictionsManager
-import android.car.VehicleAreaType
-import android.car.VehiclePropertyIds
-import android.car.hardware.CarPropertyValue
-import android.car.hardware.property.CarPropertyManager
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
@@ -206,16 +205,6 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
     private lateinit var mCar: Car
 
     private lateinit var mCarPropertyManager: CarPropertyManager
-
-    private var mCarUxRestrictionsManager: CarUxRestrictionsManager? = null
-
-    private var requiresDistractionOptimization = false
-
-    private val mUxRestrictionsListener =
-        CarUxRestrictionsManager.OnUxRestrictionsChangedListener { restrictions ->
-            requiresDistractionOptimization = restrictions.isRequiresDistractionOptimization
-            runOnUiThread { pauseAllBrowserActivity() }
-        }
 
     private val mPropertyEventCallback: CarPropertyManager.CarPropertyEventCallback =
         object : CarPropertyManager.CarPropertyEventCallback {
@@ -903,7 +892,6 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         if (::mCarPropertyManager.isInitialized) {
             mCarPropertyManager.unregisterCallback(mPropertyEventCallback)
         }
-        mCarUxRestrictionsManager?.unregisterListener()
         if (::mCar.isInitialized) {
             mCar.disconnect()
         }
@@ -1539,23 +1527,9 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
                     0F,
                 )
 
-                mCarUxRestrictionsManager =
-                    car.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE) as? CarUxRestrictionsManager
-                mCarUxRestrictionsManager?.registerListener(mUxRestrictionsListener)
-                mCarUxRestrictionsManager?.currentCarUxRestrictions?.let { restrictions ->
-                    requiresDistractionOptimization = restrictions.isRequiresDistractionOptimization
-                }
-
                 runOnUiThread { updateDrivingDialogVisibility() }
             },
         )
-    }
-
-    private fun pauseAllBrowserActivity() {
-        updateDrivingDialogVisibility()
-        components.core.store.state.tabs.forEach {
-            it.mediaSessionState?.controller?.pause()
-        }
     }
 
     private fun updateDrivingDialogVisibility() {
@@ -1563,14 +1537,8 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         val blockingView = binding.root.findViewById<View>(R.id.driving_dialog)
         blockingView?.let {
             it.visibility = if (needBlocking) View.VISIBLE else View.GONE
-            val allowButton = it.findViewById<Button>(R.id.allow)
-            if (BuildConfig.DEBUG) {
-                allowButton?.visibility = View.VISIBLE
-                allowButton?.setOnClickListener {
-                    blockingView.visibility = View.GONE
-                }
-            } else {
-                allowButton?.visibility = View.GONE
+            it.findViewById<Button>(R.id.allow)?.setOnClickListener {
+                blockingView.visibility = View.GONE
             }
             it.findViewById<Button>(R.id.cancel)?.setOnClickListener {
                 finish()
@@ -1579,11 +1547,19 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
     }
 
     private fun needToRestrictInstaller(): Boolean {
-        if (requiresDistractionOptimization) {
-            return true
+        val allowedByUser = android.provider.Settings.System.getInt(
+            contentResolver,
+            ALLOW_VIDEO_DRIVING,
+            0,
+        )
+        Log.d(DRIVING_RESTRICTION_TAG, "needToRestrictInstaller: allow_video=$allowedByUser")
+        if (allowedByUser == 1) {
+            Log.d(DRIVING_RESTRICTION_TAG, "needToRestrictInstaller: allowed by user setting, not restricting")
+            return false
         }
 
         if (!::mCarPropertyManager.isInitialized) {
+            Log.d(DRIVING_RESTRICTION_TAG, "needToRestrictInstaller: CarPropertyManager not initialized, not restricting")
             return false
         }
 
@@ -1600,10 +1576,20 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         val isParkOrNeutral = gearSelection == android.car.VehicleGear.GEAR_PARK ||
             gearSelection == android.car.VehicleGear.GEAR_NEUTRAL
 
-        return !isParkingBrakeOn && !isParkOrNeutral
+        val needRestrict = !isParkingBrakeOn && !isParkOrNeutral
+        Log.d(
+            DRIVING_RESTRICTION_TAG,
+            "needToRestrictInstaller: isParkingBrakeOn=$isParkingBrakeOn " +
+                "gearSelection=$gearSelection isParkOrNeutral=$isParkOrNeutral " +
+                "needRestrict=$needRestrict",
+        )
+        return needRestrict
     }
 
     companion object {
+        private const val ALLOW_VIDEO_DRIVING = "allow_video"
+        private const val DRIVING_RESTRICTION_TAG = "DrivingRestriction"
+
         const val OPEN_TO_BROWSER = "open_to_browser"
         const val OPEN_TO_BROWSER_AND_LOAD = "open_to_browser_and_load"
         const val OPEN_TO_SEARCH = "open_to_search"
