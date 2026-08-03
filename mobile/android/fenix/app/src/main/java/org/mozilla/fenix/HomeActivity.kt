@@ -413,51 +413,11 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
         MarkersFragmentLifecycleCallbacks.register(supportFragmentManager, components.core.engine)
 
         // There is disk read violations on some devices such as samsung and pixel for android 9/10
-        components.strictMode.allowViolation(StrictMode::allowThreadDiskReads) {
-            // Browsing mode & theme setup should always be called before super.onCreate.
-            browsingModeManager = createBrowsingModeManager(intent)
-            setupTheme()
-
-            super.onCreate(savedInstanceState)
-        }
-
-        // Checks if Activity is currently in PiP mode if launched from external intents, then exits it
-        checkAndExitPiP()
-
-        // Diagnostic breadcrumb for "Display already aquired" crash:
-        // https://github.com/mozilla-mobile/android-components/issues/7960
-        breadcrumb(
-            message = "onCreate()",
-            data = mapOf(
-                "recreated" to (savedInstanceState != null).toString(),
-                "intent" to (intent?.action ?: "null"),
-            ),
-        )
-
-        components.publicSuffixList.prefetch()
-
-        // Changing a language on the Language screen restarts the activity, but the activity keeps
-        // the old layout direction. We have to update the direction manually.
-        window.decorView.layoutDirection = Locale.getDefault().layoutDirection
-
-        binding = ActivityHomeBinding.inflate(layoutInflater)
-        val isLauncherIntent = intent.toSafeIntent().isLauncherIntent
-
         val shouldShowOnboarding = false
 
-//        val shouldShowOnboarding = settings().shouldShowOnboarding(
-//            hasUserBeenOnboarded = components.fenixOnboarding.userHasBeenOnboarded(),
-//            isLauncherIntent = isLauncherIntent,
-//        )
+        val isFirstSplashScreen = !settings().isFirstSplashScreenShown
 
-        // This is a temporary solution to determine if we should show the marketing onboarding card.
-        if (shouldShowOnboarding) {
-            lifecycleScope.launch(IO) {
-                MarketingAttributionService(applicationContext).start()
-            }
-        }
-
-        SplashScreenManager(
+        val splashScreenManager = SplashScreenManager(
             splashScreenOperation = if (FxNimbus.features.splashScreen.value().offTrainOnboarding) {
                 ApplyExperimentsOperation(
                     storage = DefaultExperimentsOperationStorage(components.settings),
@@ -484,7 +444,57 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
                     navHost.navController.navigate(NavGraphDirections.actionGlobalOnboarding())
                 }
             },
-        ).showSplashScreen()
+        )
+
+        components.strictMode.allowViolation(StrictMode::allowThreadDiskReads) {
+            // Browsing mode & theme setup should always be called before super.onCreate.
+            browsingModeManager = createBrowsingModeManager(intent)
+            setupTheme()
+
+            val splashScreen = installSplashScreen()
+            if (isFirstSplashScreen) {
+                splashScreen.setKeepOnScreenCondition(splashScreenManager)
+            }
+
+            super.onCreate(savedInstanceState)
+        }
+
+        supportActionBar?.hide()
+
+        // Checks if Activity is currently in PiP mode if launched from external intents, then exits it
+        checkAndExitPiP()
+
+        // Diagnostic breadcrumb for "Display already aquired" crash:
+        // https://github.com/mozilla-mobile/android-components/issues/7960
+        breadcrumb(
+            message = "onCreate()",
+            data = mapOf(
+                "recreated" to (savedInstanceState != null).toString(),
+                "intent" to (intent?.action ?: "null"),
+            ),
+        )
+
+        components.publicSuffixList.prefetch()
+
+        // Changing a language on the Language screen restarts the activity, but the activity keeps
+        // the old layout direction. We have to update the direction manually.
+        window.decorView.layoutDirection = Locale.getDefault().layoutDirection
+
+        binding = ActivityHomeBinding.inflate(layoutInflater)
+
+//        val shouldShowOnboarding = settings().shouldShowOnboarding(
+//            hasUserBeenOnboarded = components.fenixOnboarding.userHasBeenOnboarded(),
+//            isLauncherIntent = isLauncherIntent,
+//        )
+
+        // This is a temporary solution to determine if we should show the marketing onboarding card.
+        if (shouldShowOnboarding) {
+            lifecycleScope.launch(IO) {
+                MarketingAttributionService(applicationContext).start()
+            }
+        }
+
+        splashScreenManager.showSplashScreen(alreadyInstalled = true)
 
         lifecycleScope.launch {
             val debugSettingsRepository = DefaultDebugSettingsRepository(
@@ -576,7 +586,6 @@ open class HomeActivity : LocaleAwareAppCompatActivity(), NavHostActivity {
                     }
                 }
         }
-        supportActionBar?.hide()
 
         lifecycle.addObservers(
             webExtensionPopupObserver,

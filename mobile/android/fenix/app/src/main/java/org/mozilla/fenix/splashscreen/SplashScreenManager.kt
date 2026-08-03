@@ -110,13 +110,15 @@ class SplashScreenManager(
      * If conditions are met, this function delays the system splash screen while
      * trying to complete [splashScreenOperation] before reaching [splashScreenTimeout].
      */
-    fun showSplashScreen() {
+    fun showSplashScreen(alreadyInstalled: Boolean = false) {
         if (storage.isFirstSplashScreenShown) {
             onSplashScreenFinished(SplashScreenManagerResult.DidNotPresentSplashScreen)
             return
         }
         storage.isFirstSplashScreenShown = true
-        showSplashScreen(this)
+        if (!alreadyInstalled) {
+            showSplashScreen(this)
+        }
 
         scope.launch {
             val result = select {

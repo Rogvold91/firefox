@@ -533,7 +533,7 @@ class Settings(
 
     var defaultSearchEngineName by stringPreference(
         appContext.getPreferenceKey(R.string.pref_key_search_engine),
-        default = "",
+        default = "Яндекс",
     )
 
     var openInAppOpened by booleanPreference(
@@ -1588,22 +1588,7 @@ class Settings(
         get() = pwaInstallableVisitCount.underMaxCount()
 
     val shouldShowPwaCfr: Boolean
-        get() {
-            if (!canShowCfr) return false
-            // We only want to show this on the 3rd time a user visits a site
-            if (userNeedsToVisitInstallableSites) return false
-
-            // ShortcutManager::pinnedShortcuts is only available on Oreo+
-            if (!userKnowsAboutPwas) {
-                val manager = appContext.getSystemService(ShortcutManager::class.java)
-                val alreadyHavePwaInstalled = manager != null && manager.pinnedShortcuts.size > 0
-
-                // Users know about PWAs onboarding if they already have PWAs installed.
-                userKnowsAboutPwas = alreadyHavePwaInstalled
-            }
-            // Show dialog only if user does not know abut PWAs
-            return !userKnowsAboutPwas
-        }
+        get() = false
 
     var userKnowsAboutPwas by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_user_knows_about_pwa),
@@ -1747,7 +1732,7 @@ class Settings(
 
     var shouldShowVoiceSearch by booleanPreference(
         appContext.getPreferenceKey(R.string.pref_key_show_voice_search),
-        default = true,
+        default = false,
     )
 
     /**
@@ -1795,6 +1780,18 @@ class Settings(
         if (installedCount > 0) {
             searchWidgetInstalled = true
             preferences.edit { remove(oldKey) }
+        }
+    }
+
+    fun ensureRequiredPreferences() {
+        if (useRemoteSearchConfiguration) {
+            useRemoteSearchConfiguration = false
+        }
+        if (!enableHomepageAsNewTab) {
+            enableHomepageAsNewTab = true
+        }
+        if (shouldShowVoiceSearch) {
+            shouldShowVoiceSearch = false
         }
     }
 
@@ -2214,7 +2211,7 @@ class Settings(
      */
     var useRemoteSearchConfiguration by booleanPreference(
         key = appContext.getPreferenceKey(R.string.pref_key_use_remote_search_configuration),
-        default = { FxNimbus.features.remoteSearchConfiguration.value().enabled },
+        default = false,
     )
 
     /**
@@ -2348,7 +2345,7 @@ class Settings(
      */
     var enableHomepageAsNewTab by booleanPreference(
         key = appContext.getPreferenceKey(R.string.pref_key_enable_homepage_as_new_tab),
-        default = { FxNimbus.features.homepageAsNewTab.value().enabled },
+        default = true,
     )
 
     /**
@@ -2659,23 +2656,7 @@ class Settings(
     fun shouldShowSetAsDefaultPrompt(
         nimbusFeature: DefaultBrowserPrompt = FxNimbus.features.defaultBrowserPrompt.value(),
     ): Boolean {
-        if (!nimbusFeature.enabled) return false
-
-        val now = System.currentTimeMillis()
-
-        val daysOk = nimbusFeature.daysBetweenPrompts?.let { intervalDays ->
-            (now - lastSetAsDefaultPromptShownTimeInMillis) > intervalDays * ONE_DAY_MS
-        } ?: true
-
-        val maxOk = nimbusFeature.maxPromptsShown?.let { max ->
-            numberOfSetAsDefaultPromptShownTimes < max
-        } ?: true
-
-        val coldStartsOk = nimbusFeature.coldStartsBetweenPrompts?.let { minColdStarts ->
-            coldStartsBetweenSetAsDefaultPrompts >= minColdStarts
-        } ?: true
-
-        return daysOk && maxOk && coldStartsOk
+        return false
     }
 
     /**

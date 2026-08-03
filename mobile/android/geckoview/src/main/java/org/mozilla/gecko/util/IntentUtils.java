@@ -218,7 +218,8 @@ public class IntentUtils {
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         try {
-          final File base = new File(Environment.getStorageDirectory(), split[0]).getCanonicalFile();
+          final File base =
+              new File(Environment.getStorageDirectory(), split[0]).getCanonicalFile();
           if (split.length > 1) {
             final File resolved = new File(base, split[1]).getCanonicalFile();
             if (!resolved.getPath().startsWith(base.getPath())) {

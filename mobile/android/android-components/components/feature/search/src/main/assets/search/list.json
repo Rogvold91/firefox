@@ -1,13 +1,13 @@
 {
   "default": {
-    "searchDefault": "Google",
-    "searchOrder": ["Google", "Bing"],
-    "visibleDefaultEngines": ["google-b-m", "bing", "ddg", "wikipedia"],
-    "vivo-001": ["google-b-vv", "bing-vivo", "ddg", "wikipedia"],
-    "dt-001": ["google-b-tf", "bing-dt-tele", "ddg", "wikipedia"],
-    "dt-002": ["google-b-1-dt", "bing", "ddg", "wikipedia"],
-    "dt-003": ["google-b-dt", "bing", "ddg", "wikipedia"],
-    "aura-001": ["google-b-ar", "bing", "ddg", "wikipedia"]
+    "searchDefault": "Яндекс",
+    "searchOrder": ["Яндекс", "Google", "Bing", "DuckDuckGo"],
+    "visibleDefaultEngines": ["yandex-ru", "google-b-m", "bing", "ddg", "wikipedia"],
+    "vivo-001": ["yandex-ru", "google-b-vv", "bing-vivo", "ddg", "wikipedia"],
+    "dt-001": ["yandex-ru", "google-b-tf", "bing-dt-tele", "ddg", "wikipedia"],
+    "dt-002": ["yandex-ru", "google-b-1-dt", "bing", "ddg", "wikipedia"],
+    "dt-003": ["yandex-ru", "google-b-dt", "bing", "ddg", "wikipedia"],
+    "aura-001": ["yandex-ru", "google-b-ar", "bing", "ddg", "wikipedia"]
   },
   "regionOverrides": {
     "US": {
@@ -2307,20 +2307,24 @@
     },
     "ru": {
       "default": {
-        "visibleDefaultEngines": ["google-b-m", "ddg", "wikipedia-ru"],
-        "vivo-001": ["google-b-vv", "ddg", "wikipedia-ru"],
-        "dt-001": ["google-b-tf", "ddg", "wikipedia-ru"],
-        "dt-002": ["google-b-1-dt", "ddg", "wikipedia-ru"],
-        "dt-003": ["google-b-dt", "ddg", "wikipedia-ru"],
-        "aura-001": ["google-b-ar", "ddg", "wikipedia-ru"]
+        "searchDefault": "Яндекс",
+        "searchOrder": ["Яндекс", "Google", "DuckDuckGo", "Википедия (ru)"],
+        "visibleDefaultEngines": ["yandex-ru", "google-b-m", "ddg", "wikipedia-ru"],
+        "vivo-001": ["yandex-ru", "google-b-vv", "ddg", "wikipedia-ru"],
+        "dt-001": ["yandex-ru", "google-b-tf", "ddg", "wikipedia-ru"],
+        "dt-002": ["yandex-ru", "google-b-1-dt", "ddg", "wikipedia-ru"],
+        "dt-003": ["yandex-ru", "google-b-dt", "ddg", "wikipedia-ru"],
+        "aura-001": ["yandex-ru", "google-b-ar", "ddg", "wikipedia-ru"]
       },
       "RU": {
-        "visibleDefaultEngines": ["google-com-nocodes", "ddg", "wikipedia-ru"],
-        "vivo-001": ["google-com-nocodes", "ddg", "wikipedia-ru"],
-        "dt-001": ["google-com-nocodes", "ddg", "wikipedia-ru"],
-        "dt-002": ["google-com-nocodes", "ddg", "wikipedia-ru"],
-        "dt-003": ["google-com-nocodes", "ddg", "wikipedia-ru"],
-        "aura-001": ["google-com-nocodes", "ddg", "wikipedia-ru"]
+        "searchDefault": "Яндекс",
+        "searchOrder": ["Яндекс", "Google", "DuckDuckGo", "Википедия (ru)"],
+        "visibleDefaultEngines": ["yandex-ru", "google-com-nocodes", "ddg", "wikipedia-ru"],
+        "vivo-001": ["yandex-ru", "google-com-nocodes", "ddg", "wikipedia-ru"],
+        "dt-001": ["yandex-ru", "google-com-nocodes", "ddg", "wikipedia-ru"],
+        "dt-002": ["yandex-ru", "google-com-nocodes", "ddg", "wikipedia-ru"],
+        "dt-003": ["yandex-ru", "google-com-nocodes", "ddg", "wikipedia-ru"],
+        "aura-001": ["yandex-ru", "google-com-nocodes", "ddg", "wikipedia-ru"]
       },
       "BY": {
         "visibleDefaultEngines": ["google-com-nocodes", "ddg", "wikipedia-ru"],

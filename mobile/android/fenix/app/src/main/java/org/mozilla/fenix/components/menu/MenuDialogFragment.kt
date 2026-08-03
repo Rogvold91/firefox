@@ -759,8 +759,7 @@ class MenuDialogFragment : BottomSheetDialogFragment() {
                                             isWebCompatEnabled = isWebCompatEnabled,
                                             isPinned = isPinned,
                                             isInstallable = webAppUseCases.isInstallable(),
-                                            isAddToHomeScreenSupported = selectedTab != null &&
-                                                    webAppUseCases.isPinningSupported(),
+                                            isAddToHomeScreenSupported = false,
                                             hasExternalApp = appLinksRedirect?.hasExternalApp() ?: false,
                                             externalAppName = appLinksRedirect?.appName ?: "",
                                             isWebCompatReporterSupported = isWebCompatReporterSupported,

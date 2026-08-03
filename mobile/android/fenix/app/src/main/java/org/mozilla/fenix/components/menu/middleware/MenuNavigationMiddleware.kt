@@ -157,21 +157,7 @@ class MenuNavigationMiddleware(
                     }
                 }
 
-                is MenuAction.Navigate.AddToHomeScreen -> {
-                    settings.installPwaOpened = true
-                    if (webAppUseCases.isInstallable()) {
-                        webAppUseCases.addToHomescreen()
-                        onDismiss()
-                    } else {
-                        navController.nav(
-                            R.id.menuDialogFragment,
-                            MenuDialogFragmentDirections.actionMenuDialogFragmentToCreateShortcutFragment(),
-                            navOptions = NavOptions.Builder()
-                                .setPopUpTo(R.id.browserFragment, false)
-                                .build(),
-                        )
-                    }
-                }
+                is MenuAction.Navigate.AddToHomeScreen -> Unit
 
                 is MenuAction.Navigate.SaveToCollection -> {
                     currentState.browserMenuState?.selectedTab?.let { currentSession ->

@@ -55,12 +55,6 @@ class ApplicationSearchMiddleware(
     ) = scope.launch {
         val searchEngines = listOf(
             createApplicationSearchEngine(
-                id = BOOKMARKS_SEARCH_ENGINE_ID,
-                name = stringProvider(R.string.library_bookmarks),
-                url = "",
-                icon = bitmapProvider(R.drawable.ic_bookmarks_search),
-            ),
-            createApplicationSearchEngine(
                 id = TABS_SEARCH_ENGINE_ID,
                 name = stringProvider(R.string.preferences_tabs),
                 url = "",
