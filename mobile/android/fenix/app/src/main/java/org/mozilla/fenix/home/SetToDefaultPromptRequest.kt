@@ -85,23 +85,7 @@ private fun getBrowserRoleRequestIntent(context: Context): Intent? {
 fun maybeRequestDefaultBrowserPrompt(
     activityRef: WeakReference<HomeActivity>,
     setToDefaultPromptRequest: ActivityResultLauncher<Intent>,
-) {
-    val activity = activityRef.get() ?: return
-
-    activity.settings().setToDefaultPromptRequested = System.currentTimeMillis()
-
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-        activity.openSetDefaultBrowserOption()
-        return
-    }
-
-    val intent = getBrowserRoleRequestIntent(activity)
-    if (intent != null) {
-        setToDefaultPromptRequest.launch(intent)
-    } else {
-        activity.openSetDefaultBrowserOption()
-    }
-}
+) = Unit
 
 /**
  * @param resultCode The result returned by the system activity (e.g., [Activity.RESULT_OK] or

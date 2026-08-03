@@ -495,15 +495,6 @@ class BrowserToolbarSearchMiddleware(
         val isValidSearchEngine = selectedSearchEngine?.isGeneral == true ||
                 selectedSearchEngine?.type == CUSTOM
 
-        if (settings.shouldShowVoiceSearch && isSpeechRecognitionAvailable()) {
-            add(
-                ActionButtonRes(
-                    drawableResId = iconsR.drawable.mozac_ic_microphone_24,
-                    contentDescription = R.string.voice_search_content_description,
-                    onClick = VoiceSearchButtonClicked,
-                ),
-            )
-        }
         if (queryText.isNotEmpty()) {
             add(
                 ActionButtonRes(

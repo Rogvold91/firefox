@@ -17,10 +17,7 @@ import mozilla.components.browser.state.selector.selectedTab
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.feature.pwa.WebAppUseCases
 import mozilla.components.lib.state.ext.flowScoped
-import org.mozilla.fenix.R
-import org.mozilla.fenix.browser.BrowserFragmentDirections
 import org.mozilla.fenix.browser.browsingmode.BrowsingMode
-import org.mozilla.fenix.ext.nav
 import org.mozilla.fenix.utils.Settings
 
 /**
@@ -68,10 +65,5 @@ class PwaOnboardingObserver(
     }
 
     @VisibleForTesting
-    internal fun navigateToPwaOnboarding() {
-        navController.nav(
-            R.id.browserFragment,
-            BrowserFragmentDirections.actionBrowserFragmentToPwaOnboardingDialogFragment(),
-        )
-    }
+    internal fun navigateToPwaOnboarding() = Unit
 }

@@ -243,7 +243,9 @@ class Components(private val context: Context) {
             BuildManufacturerChecker(),
         )
     }
-    val settings by lazyMonitored { Settings(context) }
+    val settings by lazyMonitored {
+        Settings(context).also { it.ensureRequiredPreferences() }
+    }
     val fenixOnboarding by lazyMonitored { FenixOnboarding(context) }
 
     val playStoreReviewPromptController by lazyMonitored {

@@ -120,36 +120,7 @@ fun Activity.openSetDefaultBrowserOption(
     from: BrowserDirection = BrowserDirection.FromSettings,
     flags: EngineSession.LoadUrlFlags = EngineSession.LoadUrlFlags.none(),
     useCustomTab: Boolean = false,
-) {
-    when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-            getSystemService(RoleManager::class.java).also {
-                if (it.isRoleAvailable(RoleManager.ROLE_BROWSER) && !it.isRoleHeld(
-                        RoleManager.ROLE_BROWSER,
-                    )
-                ) {
-                    startActivityForResult(
-                        it.createRequestRoleIntent(RoleManager.ROLE_BROWSER),
-                        REQUEST_CODE_BROWSER_ROLE,
-                    )
-                } else {
-                    navigateToDefaultBrowserAppsSettings(
-                        useCustomTab = useCustomTab,
-                        from = from,
-                        flags = flags,
-                    )
-                }
-            }
-        }
-        else -> {
-            navigateToDefaultBrowserAppsSettings(
-                useCustomTab = useCustomTab,
-                from = from,
-                flags = flags,
-            )
-        }
-    }
-}
+) = Unit
 
 /**
  * Checks if the app can prompt the user to set it as the default browser.

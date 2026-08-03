@@ -318,7 +318,7 @@ private fun TabsList(
             // in onCloseTabClick so this acts on state change which can occur from any other
             // place e.g. tabs tray.
             LaunchedEffect(state.tabs.last().id) {
-                listState.scrollToItem(state.tabs.size)
+                listState.scrollToItem(state.tabs.lastIndex)
             }
 
             // When a tab is selected, scroll to the selected tab. This is done here instead of

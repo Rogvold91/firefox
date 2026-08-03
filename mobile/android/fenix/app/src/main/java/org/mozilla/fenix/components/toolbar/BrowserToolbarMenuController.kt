@@ -30,7 +30,6 @@ import mozilla.components.feature.top.sites.PinnedSiteStorage
 import mozilla.components.feature.top.sites.TopSite
 import mozilla.components.support.base.feature.ViewBoundFeatureWrapper
 import mozilla.components.support.ktx.kotlin.isContentUrl
-import mozilla.components.support.utils.BuildManufacturerChecker
 import mozilla.components.ui.widgets.withCenterAlignedButtons
 import mozilla.telemetry.glean.private.NoExtras
 import org.mozilla.fenix.GleanMetrics.Collections
@@ -113,20 +112,7 @@ class DefaultBrowserToolbarMenuController(
         when (item) {
             // TODO: These can be removed for https://github.com/mozilla-mobile/fenix/issues/17870
             // todo === Start ===
-            is ToolbarMenu.Item.InstallPwaToHomeScreen -> {
-                settings.installPwaOpened = true
-                scope.launch {
-                    with(components.useCases.webAppUseCases) {
-                        if (isInstallable()) {
-                            addToHomescreen()
-                        } else {
-                            val directions =
-                                BrowserFragmentDirections.actionBrowserFragmentToCreateShortcutFragment()
-                            navController.navigateSafe(R.id.browserFragment, directions)
-                        }
-                    }
-                }
-            }
+            is ToolbarMenu.Item.InstallPwaToHomeScreen -> Unit
             is ToolbarMenu.Item.OpenInFenix -> {
                 customTabSessionId?.let {
                     // Stop the SessionFeature from updating the EngineView and let it release the session
@@ -288,26 +274,7 @@ class DefaultBrowserToolbarMenuController(
                     }
                 }
             }
-            is ToolbarMenu.Item.AddToHomeScreen -> {
-                settings.installPwaOpened = true
-                scope.launch {
-                    with(components.useCases.webAppUseCases) {
-                        if (isInstallable()) {
-                            addToHomescreen()
-                        } else {
-                            if (BuildManufacturerChecker().isXiaomi()) {
-                                val directions =
-                                    BrowserFragmentDirections.actionBrowserFragmentToCreateXiaomiShortcutFragment()
-                                navController.navigateSafe(R.id.browserFragment, directions)
-                            } else {
-                                val directions =
-                                    BrowserFragmentDirections.actionBrowserFragmentToCreateShortcutFragment()
-                                navController.navigateSafe(R.id.browserFragment, directions)
-                            }
-                        }
-                    }
-                }
-            }
+            is ToolbarMenu.Item.AddToHomeScreen -> Unit
             is ToolbarMenu.Item.FindInPage -> {
                 findInPageLauncher()
             }

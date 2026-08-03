@@ -89,7 +89,7 @@ fun SearchSelector(
                 this.contentDescription = contentDescription
                 this.testTag = SEARCH_SELECTOR
             }
-            .clickable {
+            .clickable(enabled = onClick != null) {
                 view.playSoundEffect(SoundEffectConstants.CLICK)
                 showMenu = true
                 onClick?.let {

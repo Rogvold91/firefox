@@ -874,30 +874,9 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
     }
 
     private fun updateVoiceSearchButton() {
-        when (isSpeechAvailable() && requireContext().settings().shouldShowVoiceSearch) {
-            true -> {
-                if (voiceSearchButtonAction == null) {
-                    voiceSearchButtonAction = IncreasedTapAreaActionDecorator(
-                        BrowserToolbar.Button(
-                            AppCompatResources.getDrawable(requireContext(), R.drawable.ic_microphone)!!,
-                            requireContext().getString(R.string.voice_search_content_description),
-                            visible = { true },
-                            listener = ::launchVoiceSearch,
-                        ),
-                    ).also { action ->
-                        toolbarView.view.run {
-                            addEditActionEnd(action)
-                            invalidateActions()
-                        }
-                    }
-                }
-            }
-            false -> {
-                voiceSearchButtonAction?.let { action ->
-                    toolbarView.view.removeEditActionEnd(action)
-                    voiceSearchButtonAction = null
-                }
-            }
+        voiceSearchButtonAction?.let { action ->
+            toolbarView.view.removeEditActionEnd(action)
+            voiceSearchButtonAction = null
         }
     }
 

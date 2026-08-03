@@ -58,9 +58,6 @@ import mozilla.components.feature.pwa.WebAppShortcutManager
 import mozilla.components.feature.readerview.ReaderViewMiddleware
 import mozilla.components.feature.recentlyclosed.RecentlyClosedMiddleware
 import mozilla.components.feature.recentlyclosed.RecentlyClosedTabsStorage
-import mozilla.components.feature.search.SearchApplicationName
-import mozilla.components.feature.search.SearchDeviceType
-import mozilla.components.feature.search.SearchUpdateChannel
 import mozilla.components.feature.search.middleware.AdsTelemetryMiddleware
 import mozilla.components.feature.search.middleware.SearchExtraParams
 import mozilla.components.feature.search.middleware.SearchMiddleware
@@ -380,7 +377,7 @@ class Core(
                     repository = DefaultHomepageAsANewTabPreferenceRepository(context.settings()),
                 ),
                 AboutHomeMiddleware(
-                    homepageTitle = context.getString(R.string.tab_tray_homepage_tab),
+                    homepageTitle = context.getString(R.string.library_new_tab),
                 ),
                 BrowserVisualCompletenessMiddleware(visualCompletenessQueue),
             )
@@ -703,33 +700,7 @@ class Core(
     /**
      * Gets a [SearchEngineSelectorConfig] for the app and device.
      */
-    private fun getSearchEngineSelectorConfig(): SearchEngineSelectorConfig? {
-        if (!context.settings().useRemoteSearchConfiguration) {
-            return null
-        }
-
-        val updateChannel = when (Config.channel) {
-            ReleaseChannel.Debug -> SearchUpdateChannel.DEFAULT
-            ReleaseChannel.Nightly -> SearchUpdateChannel.NIGHTLY
-            ReleaseChannel.Beta -> SearchUpdateChannel.BETA
-            ReleaseChannel.Release -> SearchUpdateChannel.RELEASE
-        }
-
-        val deviceType = if (context.isLargeWindow()) {
-            SearchDeviceType.TABLET
-        } else {
-            SearchDeviceType.SMARTPHONE
-        }
-
-        return SearchEngineSelectorConfig(
-            appName = SearchApplicationName.FIREFOX_ANDROID,
-            appVersion = context.appVersionName,
-            deviceType = deviceType,
-            experiment = "",
-            updateChannel = updateChannel,
-            service = context.components.remoteSettingsService.value,
-        )
-    }
+    private fun getSearchEngineSelectorConfig(): SearchEngineSelectorConfig? = null
 
     companion object {
         private const val KEY_STORAGE_NAME = "core_prefs"
