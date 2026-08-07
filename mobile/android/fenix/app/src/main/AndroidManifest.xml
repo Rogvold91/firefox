@@ -741,11 +741,6 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="android.intent.action.ASSIST" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:scheme="http" />
@@ -760,19 +755,6 @@
                 <data android:scheme="content" />
             </intent-filter>
 
-            <meta-data
-                android:name="com.android.systemui.action_assist_icon"
-                android:resource="@mipmap/ic_launcher" />
-
-            <meta-data
-                android:name="distractionOptimized"
-                android:value="true" />
-        </activity>
-
-        <activity android:name=".widget.VoiceSearchActivity"
-            android:theme="@style/Theme.AppCompat.Translucent"
-            android:taskAffinity=""
-            android:excludeFromRecents="true">
             <meta-data
                 android:name="distractionOptimized"
                 android:value="true" />

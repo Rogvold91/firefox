@@ -955,7 +955,7 @@ class SearchDialogFragment : AppCompatDialogFragment(), UserInteractionHandler {
         requireContext().settings().setCameraPermissionNeededState = false
     }
 
-    private fun isSpeechAvailable(): Boolean = speechIntent.resolveActivity(requireContext().packageManager) != null
+    private fun isSpeechAvailable(): Boolean = false
 
     private fun updateClipboardSuggestion(
         shouldShowView: Boolean,
