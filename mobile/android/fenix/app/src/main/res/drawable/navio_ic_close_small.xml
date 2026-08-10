@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/navio_pop_up_icon_size"
+    android:height="@dimen/navio_pop_up_icon_size"
+    android:viewportWidth="44"
+    android:viewportHeight="44">
+    <path
+        android:fillColor="@color/navio_popup_icon_close"
+        android:pathData="M31.074,10.334C31.79,9.618 32.951,9.618 33.667,10.334C34.383,11.05 34.383,12.21 33.667,12.926L24.591,22L33.667,31.075C34.383,31.791 34.383,32.952 33.667,33.668C32.951,34.384 31.79,34.384 31.074,33.668L21.999,24.592L12.925,33.668C12.209,34.384 11.049,34.384 10.333,33.668C9.617,32.952 9.617,31.791 10.333,31.075L19.406,22L10.333,12.926C9.617,12.21 9.617,11.05 10.333,10.334C11.049,9.618 12.209,9.618 12.925,10.334L21.999,19.407L31.074,10.334Z" />
+</vector>

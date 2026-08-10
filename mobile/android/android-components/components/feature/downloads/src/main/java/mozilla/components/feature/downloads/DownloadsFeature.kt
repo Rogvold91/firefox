@@ -155,6 +155,8 @@ class DownloadsFeature(
         (ThirdPartyDownloaderApps, ThirdPartyDownloaderAppChosenCallback, NegativeActionCallback) -> Unit
     )? = null,
     private val fileHasNotEnoughStorageDialog: ((Filename) -> Unit) = {},
+    private val shouldAllowDownload: (fileName: String, url: String) -> Boolean = { _, _ -> true },
+    private val onDownloadNotAllowed: () -> Unit = {},
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
 ) : LifecycleAwareFeature, PermissionsFeature {
 
@@ -241,6 +243,13 @@ class DownloadsFeature(
      */
     @VisibleForTesting
     internal fun processDownload(tab: SessionState, download: DownloadState): Boolean {
+        val fileName = download.getRealFilenameOrGuessed(downloadFileUtils)
+        if (!shouldAllowDownload(fileName, download.url)) {
+            onDownloadNotAllowed()
+            useCases.cancelDownloadRequest.invoke(tab.id, download.id)
+            return false
+        }
+
         val apps = getDownloaderApps(applicationContext, download)
         // We only show the dialog If we have multiple apps that can handle the download.
         val shouldShowAppDownloaderDialog = shouldForwardToThirdParties() && apps.size > 1

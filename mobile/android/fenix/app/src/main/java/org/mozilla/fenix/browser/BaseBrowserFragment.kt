@@ -4,10 +4,12 @@
 
 package org.mozilla.fenix.browser
 
+import android.Manifest
 import android.app.KeyguardManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -161,7 +163,9 @@ import org.mozilla.fenix.OnLongPressedListener
 import org.mozilla.fenix.OpenInFirefoxBinding
 import org.mozilla.fenix.R
 import org.mozilla.fenix.ReaderViewBinding
+import org.mozilla.fenix.automotive.NavioPopUpView
 import org.mozilla.fenix.bindings.FindInPageBinding
+import org.mozilla.fenix.downloads.AllowedDownloadExtensions
 import org.mozilla.fenix.biometricauthentication.AuthenticationStatus
 import org.mozilla.fenix.biometricauthentication.BiometricAuthenticationManager
 import org.mozilla.fenix.bookmarks.friendlyRootTitle
@@ -210,6 +214,7 @@ import org.mozilla.fenix.customtabs.ExternalAppBrowserActivity
 import org.mozilla.fenix.databinding.FragmentBrowserBinding
 import org.mozilla.fenix.downloads.DownloadService
 import org.mozilla.fenix.downloads.dialog.createDownloadAppDialog
+import org.mozilla.fenix.downloads.dialog.enlargeDownloadDialogFonts
 import org.mozilla.fenix.experiments.NimbusGeckoPrefHandler
 import org.mozilla.fenix.ext.accessibilityManager
 import org.mozilla.fenix.ext.breadcrumb
@@ -850,6 +855,12 @@ abstract class BaseBrowserFragment :
             onNeedToRequestPermissions = { permissions ->
                 requestPermissions(permissions, REQUEST_CODE_DOWNLOAD_PERMISSIONS)
             },
+            shouldAllowDownload = { fileName, url ->
+                AllowedDownloadExtensions.isAllowedDownload(fileName, url)
+            },
+            onDownloadNotAllowed = {
+                showDownloadTypeUnavailableMessage()
+            },
             customFirstPartyDownloadDialog = {
                     filename,
                     contentSize,
@@ -911,6 +922,7 @@ abstract class BaseBrowserFragment :
                                         Breadcrumb("FirstPartyDownloadDialog onDismiss"),
                                     )
                                 }.show()
+                                .also { it.enlargeDownloadDialogFonts() }
                         } else {
                             val title = if (contentSize.value > 0L) {
                                 val contentSizeInBytes =
@@ -947,6 +959,7 @@ abstract class BaseBrowserFragment :
                                         Breadcrumb("FirstPartyDownloadDialog onDismiss"),
                                     )
                                 }.show()
+                                .also { it.enlargeDownloadDialogFonts() }
                         }
                     }
                 }
@@ -1164,9 +1177,10 @@ abstract class BaseBrowserFragment :
                         findNavController().navigate(directions)
                     }
                 },
-                onNeedToRequestPermissions = { permissions ->
-                    requestPermissions(permissions, REQUEST_CODE_PROMPT_PERMISSIONS)
-                },
+            onFeatureUnavailable = ::showFeatureUnavailableMessage,
+            onNeedToRequestPermissions = { permissions ->
+                requestPermissionsIfAllowed(permissions, REQUEST_CODE_PROMPT_PERMISSIONS)
+            },
                 loginDelegate = object : LoginDelegate {
                     override val loginPickerView
                         get() = loginSelectBar
@@ -1350,7 +1364,7 @@ abstract class BaseBrowserFragment :
                 ),
                 sessionId = customTabSessionId,
                 onNeedToRequestPermissions = { permissions ->
-                    requestPermissions(permissions, REQUEST_CODE_APP_PERMISSIONS)
+                    requestPermissionsIfAllowed(permissions, REQUEST_CODE_APP_PERMISSIONS)
                 },
                 onShouldShowRequestPermissionRationale = {
                     shouldShowRequestPermissionRationale(
@@ -1358,6 +1372,7 @@ abstract class BaseBrowserFragment :
                     )
                 },
                 shouldShowDoNotAskAgainCheckBox = context.components.appStore.state.mode != BrowsingMode.Private,
+                onFeatureUnavailable = ::showFeatureUnavailableMessage,
                 store = store,
             ),
             owner = this,
@@ -2176,6 +2191,61 @@ abstract class BaseBrowserFragment :
             else -> null
         }
         feature?.onPermissionsResult(permissions, grantResults)
+    }
+
+    /**
+     * Blocks camera/microphone/storage runtime permission prompts.
+     * Download permissions are intentionally not handled here.
+     */
+    private fun requestPermissionsIfAllowed(
+        permissions: Array<String>,
+        requestCode: Int,
+    ) {
+        if (permissions.any { it.isBlockedDevicePermission() }) {
+            showFeatureUnavailableMessage()
+            val feature: PermissionsFeature? = when (requestCode) {
+                REQUEST_CODE_PROMPT_PERMISSIONS -> promptsFeature.get()
+                REQUEST_CODE_APP_PERMISSIONS -> sitePermissionsFeature.get()
+                else -> null
+            }
+            feature?.onPermissionsResult(
+                permissions,
+                IntArray(permissions.size) { PackageManager.PERMISSION_DENIED },
+            )
+            return
+        }
+        requestPermissions(permissions, requestCode)
+    }
+
+    private fun showFeatureUnavailableMessage() {
+        NavioPopUpView.showPopUp(
+            requireContext(),
+            getString(R.string.browser_feature_unavailable),
+            R.drawable.navio_ic_inform_small,
+            R.drawable.navio_ic_close_small,
+        )
+    }
+
+    private fun showDownloadTypeUnavailableMessage() {
+        NavioPopUpView.showPopUp(
+            requireContext(),
+            getString(R.string.download_type_unavailable),
+            R.drawable.navio_ic_inform_small,
+            R.drawable.navio_ic_close_small,
+        )
+    }
+
+    private fun String.isBlockedDevicePermission(): Boolean {
+        return this == Manifest.permission.CAMERA ||
+            this == Manifest.permission.RECORD_AUDIO ||
+            this == Manifest.permission.READ_EXTERNAL_STORAGE ||
+            this == Manifest.permission.WRITE_EXTERNAL_STORAGE ||
+            this == Manifest.permission.READ_MEDIA_IMAGES ||
+            this == Manifest.permission.READ_MEDIA_VIDEO ||
+            this == Manifest.permission.READ_MEDIA_AUDIO ||
+            this == Manifest.permission.MANAGE_EXTERNAL_STORAGE ||
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                this == Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
     }
 
     protected abstract fun navToQuickSettingsSheet(

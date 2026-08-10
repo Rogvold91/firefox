@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="navio_popup_background">#F7F8FA</color>
+    <color name="navio_popup_text">#171B1E</color>
+    <color name="navio_popup_icon_status">#FF364D</color>
+    <color name="navio_popup_icon_close">#828B93</color>
+</resources>

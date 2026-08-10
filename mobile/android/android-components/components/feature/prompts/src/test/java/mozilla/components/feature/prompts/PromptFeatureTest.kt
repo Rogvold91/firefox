@@ -3445,7 +3445,7 @@ class PromptFeatureTest {
     }
 
     @Test
-    fun `WHEN prompt request is a file THEN the active prompt should not be dismissed`() = runTest(testDispatcher) {
+    fun `WHEN prompt request is a file THEN it is dismissed without opening the file picker`() = runTest(testDispatcher) {
         var onDismissWasCalled = false
 
         val filePickerRequest =
@@ -3453,24 +3453,28 @@ class PromptFeatureTest {
                 onDismissWasCalled = true
             }
 
-        val feature = PromptFeature(
-            activity = mock(),
-            store = store,
-            fileUploadsDirCleaner = mock(),
-            isEmailMaskFeatureEnabled = { false },
-            isSuggestEmailMaskEnabled = { false },
-            tabsUseCases = mock(),
-            fragmentManager = fragmentManager,
-            onNeedToRequestPermissions = { },
+        val feature = spy(
+            PromptFeature(
+                activity = Robolectric.buildActivity(Activity::class.java).setup().get(),
+                store = store,
+                fileUploadsDirCleaner = mock(),
+                isEmailMaskFeatureEnabled = { false },
+                isSuggestEmailMaskEnabled = { false },
+                tabsUseCases = mock(),
+                fragmentManager = fragmentManager,
+                onNeedToRequestPermissions = { },
+            ),
         )
+        feature.filePicker = mock()
 
         store.dispatch(ContentAction.UpdatePromptRequestAction(tabId, filePickerRequest))
 
         feature.start()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        assertFalse(onDismissWasCalled)
-        assertTrue(tab()!!.content.promptRequests.isNotEmpty())
+        assertTrue(onDismissWasCalled)
+        assertTrue(tab()!!.content.promptRequests.isEmpty())
+        verify(feature.filePicker, never()).handleFileRequest(any())
     }
 
     @Test

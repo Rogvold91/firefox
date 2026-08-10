@@ -754,6 +754,38 @@ class SitePermissionsFeatureTest {
     }
 
     @Test
+    fun `GIVEN a microphone permissionRequest WHEN onContentPermissionRequested() THEN reject without showing a prompt`() = runTest {
+        val mockPermissionRequest: PermissionRequest = mock {
+            whenever(permissions).thenReturn(listOf(ContentAudioCapture(id = "permission")))
+        }
+        doNothing().`when`(mockPermissionRequest).reject()
+
+        val prompt = sitePermissionFeature.onContentPermissionRequested(mockPermissionRequest, URL)
+
+        assertNull(prompt)
+        verify(mockPermissionRequest).reject()
+        verify(sitePermissionFeature).consumePermissionRequest(mockPermissionRequest)
+        verify(sitePermissionFeature, never()).handleRuledFlow(any(), anyString())
+        verify(sitePermissionFeature, never()).handleNoRuledFlow(any(), any(), anyString())
+    }
+
+    @Test
+    fun `GIVEN a camera permissionRequest WHEN onContentPermissionRequested() THEN reject without showing a prompt`() = runTest {
+        val mockPermissionRequest: PermissionRequest = mock {
+            whenever(permissions).thenReturn(listOf(ContentVideoCamera(id = "permission")))
+        }
+        doNothing().`when`(mockPermissionRequest).reject()
+
+        val prompt = sitePermissionFeature.onContentPermissionRequested(mockPermissionRequest, URL)
+
+        assertNull(prompt)
+        verify(mockPermissionRequest).reject()
+        verify(sitePermissionFeature).consumePermissionRequest(mockPermissionRequest)
+        verify(sitePermissionFeature, never()).handleRuledFlow(any(), anyString())
+        verify(sitePermissionFeature, never()).handleNoRuledFlow(any(), any(), anyString())
+    }
+
+    @Test
     fun `GIVEN sessionId which does not match a selected or custom tab WHEN onContentPermissionRequested() THEN reject, consumePermissionRequest are called `() = runTest {
         val mockPermissionRequest: PermissionRequest = mock {
             whenever(permissions).thenReturn(listOf(ContentVideoCamera(id = "permission")))
@@ -1702,7 +1734,6 @@ class SitePermissionsFeatureTest {
             ContentAudioCapture(),
             ContentAudioMicrophone(),
         )
-
         permissions.forEach { permission ->
             var grantWasCalled = false
 

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="navio_popup_background">#0F1214</color>
+    <color name="navio_popup_text">#EDEEF0</color>
+    <color name="navio_popup_icon_status">#ED152E</color>
+    <color name="navio_popup_icon_close">#4D5964</color>
+
+    <dimen name="navio_icon_size_l">48dp</dimen>
+    <dimen name="navio_padding_m">16dp</dimen>
+    <dimen name="navio_padding_xl">24dp</dimen>
+    <dimen name="navio_app_frame_corner_radius">24dp</dimen>
+    <dimen name="navio_pop_up_icon_size">44dp</dimen>
+
+    <style name="NavioSnackBarTitle">
+        <item name="android:fontFamily">@font/navio_vesta2_regular</item>
+        <item name="android:textSize">36sp</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:textColor">@color/navio_popup_text</item>
+        <item name="android:fontWeight">400</item>
+    </style>
+</resources>

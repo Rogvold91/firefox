@@ -2113,6 +2113,10 @@
   <string name="preference_phone_feature_camera">Камера</string>
   <!-- Preference for altering the microphone access for all websites -->
   <string name="preference_phone_feature_microphone">Микрофон</string>
+  <!-- Message shown when camera, microphone or storage access is requested and blocked. -->
+  <string name="browser_feature_unavailable">Данная функция недоступна</string>
+  <!-- Message shown when download of an unsupported file type is blocked. -->
+  <string name="download_type_unavailable">Скачивание файла данного типа недоступно</string>
   <!-- Preference for altering the location access for all websites -->
   <string name="preference_phone_feature_location">Местоположение</string>
   <!-- Preference for altering the notification access for all websites -->

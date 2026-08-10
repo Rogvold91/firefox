@@ -116,6 +116,7 @@ class SitePermissionsFeature(
     private val store: BrowserStore,
     private val exitFullscreenUseCase: SessionUseCases.ExitFullScreenUseCase = SessionUseCases(store).exitFullscreen,
     private val shouldShowDoNotAskAgainCheckBox: Boolean = true,
+    private val onFeatureUnavailable: () -> Unit = {},
     private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : LifecycleAwareFeature, PermissionsFeature {
@@ -196,8 +197,14 @@ class SitePermissionsFeature(
                 }
                     .filterChanged { it }
                     .collect { appPermissionRequest ->
-                        val permissions = appPermissionRequest.permissions.map { it.id ?: "" }
-                        onNeedToRequestPermissions(permissions.toTypedArray())
+                        if (appPermissionRequest.includesBlockedDevicePermission()) {
+                            onFeatureUnavailable()
+                            appPermissionRequest.reject()
+                            consumeAppPermissionRequest(appPermissionRequest)
+                        } else {
+                            val permissions = appPermissionRequest.permissions.map { it.id ?: "" }
+                            onNeedToRequestPermissions(permissions.toTypedArray())
+                        }
                     }
             }
     }
@@ -494,6 +501,13 @@ class SitePermissionsFeature(
         origin: String,
         coroutineScope: CoroutineScope = ioCoroutineScope,
     ): SitePermissionsDialogFragment? {
+        if (permissionRequest.includesBlockedDevicePermission()) {
+            onFeatureUnavailable()
+            permissionRequest.reject()
+            consumePermissionRequest(permissionRequest)
+            return null
+        }
+
         // We want to warranty that all media permissions have the required system
         // permissions are granted first, otherwise, we reject the request
         if (permissionRequest.isMedia && !permissionRequest.areAllMediaPermissionsGranted) {
@@ -1072,6 +1086,19 @@ class SitePermissionsFeature(
             shouldSelectDoNotAskAgainCheckBox = shouldSelectRememberChoice,
             learnMoreLink = learnMoreLink,
         )
+    }
+
+    private fun PermissionRequest.includesBlockedDevicePermission(): Boolean {
+        return permissions.any {
+            it is ContentAudioCapture ||
+                it is ContentAudioMicrophone ||
+                it is ContentVideoCamera ||
+                it is ContentVideoCapture ||
+                it is AppAudio ||
+                it is AppCamera ||
+                it.id == RECORD_AUDIO ||
+                it.id == CAMERA
+        }
     }
 
     private val PermissionRequest.isMedia: Boolean

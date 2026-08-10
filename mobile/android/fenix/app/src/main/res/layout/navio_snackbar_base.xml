@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/navio_snackbar_background"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="@dimen/navio_padding_xl">
+
+    <ImageView
+        android:id="@+id/navio_icon"
+        android:layout_width="@dimen/navio_icon_size_l"
+        android:layout_height="@dimen/navio_icon_size_l"
+        android:contentDescription="@null"
+        android:src="@drawable/navio_ic_attention_triangle_fill"
+        tools:src="@drawable/navio_ic_attention_triangle_fill" />
+
+    <TextView
+        android:id="@+id/navio_text_message"
+        style="@style/NavioSnackBarTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/navio_padding_m"
+        tools:text="Данная функция недоступна" />
+
+    <ImageView
+        android:id="@+id/navio_final_icon"
+        android:layout_width="@dimen/navio_icon_size_l"
+        android:layout_height="@dimen/navio_icon_size_l"
+        android:layout_marginStart="@dimen/navio_padding_m"
+        android:contentDescription="@null"
+        android:src="@drawable/navio_ic_close_small"
+        tools:src="@drawable/navio_ic_close_small" />
+</LinearLayout>
