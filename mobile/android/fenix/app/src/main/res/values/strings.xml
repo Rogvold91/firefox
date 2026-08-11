@@ -1949,6 +1949,10 @@
     <string name="preference_phone_feature_camera">Camera</string>
     <!-- Preference for altering the microphone access for all websites -->
     <string name="preference_phone_feature_microphone">Microphone</string>
+    <!-- Message shown when camera, microphone or storage access is requested and blocked. -->
+    <string name="browser_feature_unavailable">This feature is unavailable</string>
+    <!-- Message shown when download of an unsupported file type is blocked. -->
+    <string name="download_type_unavailable">Downloading this file type is unavailable</string>
     <!-- Preference for altering the location access for all websites -->
     <string name="preference_phone_feature_location">Location</string>
     <!-- Preference for altering the notification access for all websites -->

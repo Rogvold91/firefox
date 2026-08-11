@@ -113,6 +113,7 @@ internal open class SitePermissionsDialogFragment : AppCompatDialogFragment() {
         sheetDialog.setContainerView(rootView)
 
         sheetDialog.window?.apply {
+
             if (dialogGravity != DEFAULT_VALUE) {
                 setGravity(dialogGravity)
             }

@@ -155,7 +155,6 @@ class FenixSnackbarDelegate(
 
         this.snackbar?.dismiss()
         this.snackbar = snackbar
-
         snackbar.show()
     }
 

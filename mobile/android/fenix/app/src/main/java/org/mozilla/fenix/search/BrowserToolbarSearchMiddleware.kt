@@ -7,7 +7,6 @@ package org.mozilla.fenix.search
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
-import android.speech.RecognizerIntent
 import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.drawable.toDrawable
 import androidx.navigation.NavController
@@ -565,9 +564,7 @@ class BrowserToolbarSearchMiddleware(
     }
 
     @VisibleForTesting
-    internal fun isSpeechRecognitionAvailable() =
-        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-            .resolveActivity(uiContext.packageManager) != null
+    internal fun isSpeechRecognitionAvailable() = false
 
     private inline fun <S : State, A : MVIAction> Store<S, A>.observeWhileActive(
         crossinline observe: suspend (Flow<S>.() -> Unit),

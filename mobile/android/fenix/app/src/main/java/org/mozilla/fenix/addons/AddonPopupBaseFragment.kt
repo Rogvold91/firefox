@@ -34,9 +34,12 @@ import mozilla.components.support.base.feature.ViewBoundFeatureWrapper
 import mozilla.components.support.utils.DefaultDownloadFileUtils
 import mozilla.components.support.utils.DownloadFileUtils
 import org.mozilla.fenix.R
+import org.mozilla.fenix.automotive.NavioPopUpView
 import org.mozilla.fenix.components.appstate.AppAction
+import org.mozilla.fenix.downloads.AllowedDownloadExtensions
 import org.mozilla.fenix.downloads.DownloadService
 import org.mozilla.fenix.downloads.dialog.createDownloadAppDialog
+import org.mozilla.fenix.downloads.dialog.enlargeDownloadDialogFonts
 import org.mozilla.fenix.ext.components
 import org.mozilla.fenix.ext.getPreferenceKey
 import org.mozilla.fenix.ext.pixelSizeFor
@@ -125,6 +128,17 @@ abstract class AddonPopupBaseFragment : Fragment(), EngineSession.Observer, User
                 onNeedToRequestPermissions = { permissions ->
                     requestPermissions(permissions, REQUEST_CODE_DOWNLOAD_PERMISSIONS)
                 },
+                shouldAllowDownload = { fileName, url ->
+                    AllowedDownloadExtensions.isAllowedDownload(fileName, url)
+                },
+                onDownloadNotAllowed = {
+                    NavioPopUpView.showPopUp(
+                        requireContext(),
+                        getString(R.string.download_type_unavailable),
+                        R.drawable.navio_ic_inform_small,
+                        R.drawable.navio_ic_close_small,
+                    )
+                },
                 customFirstPartyDownloadDialog = { filename, contentSize, _, positiveAction, negativeAction, _ ->
                     run {
                         if (downloadDialog == null) {
@@ -161,6 +175,7 @@ abstract class AddonPopupBaseFragment : Fragment(), EngineSession.Observer, User
                                         Breadcrumb("FirstPartyDownloadDialog onDismiss"),
                                     )
                                 }.show()
+                                .also { it.enlargeDownloadDialogFonts() }
                         }
                     }
                 },

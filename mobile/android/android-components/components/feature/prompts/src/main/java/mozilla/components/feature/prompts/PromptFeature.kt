@@ -224,6 +224,7 @@ class PromptFeature private constructor(
     private val creditCardDelegate: CreditCardDelegate = object : CreditCardDelegate {},
     private val addressDelegate: AddressDelegate = DefaultAddressDelegate(),
     private val fileUploadsDirCleaner: FileUploadsDirCleaner,
+    private val onFeatureUnavailable: () -> Unit = {},
     onNeedToRequestPermissions: OnNeedToRequestPermissions,
     androidPhotoPicker: AndroidPhotoPicker?,
 ) : LifecycleAwareFeature,
@@ -291,6 +292,7 @@ class PromptFeature private constructor(
         creditCardDelegate: CreditCardDelegate = object : CreditCardDelegate {},
         addressDelegate: AddressDelegate = DefaultAddressDelegate(),
         fileUploadsDirCleaner: FileUploadsDirCleaner,
+        onFeatureUnavailable: () -> Unit = {},
         onNeedToRequestPermissions: OnNeedToRequestPermissions,
         androidPhotoPicker: AndroidPhotoPicker? = null,
     ) : this(
@@ -324,6 +326,7 @@ class PromptFeature private constructor(
         creditCardDelegate = creditCardDelegate,
         addressDelegate = addressDelegate,
         fileUploadsDirCleaner = fileUploadsDirCleaner,
+        onFeatureUnavailable = onFeatureUnavailable,
         onNeedToRequestPermissions = onNeedToRequestPermissions,
         androidPhotoPicker = androidPhotoPicker,
         mainDispatcher = mainDispatcher,
@@ -361,6 +364,7 @@ class PromptFeature private constructor(
         addressDelegate: AddressDelegate = DefaultAddressDelegate(),
         fileUploadsDirCleaner: FileUploadsDirCleaner,
         androidPhotoPicker: AndroidPhotoPicker? = null,
+        onFeatureUnavailable: () -> Unit = {},
         onNeedToRequestPermissions: OnNeedToRequestPermissions,
     ) : this(
         container = PromptContainer.Fragment(fragment),
@@ -391,6 +395,7 @@ class PromptFeature private constructor(
         creditCardDelegate = creditCardDelegate,
         addressDelegate = addressDelegate,
         fileUploadsDirCleaner = fileUploadsDirCleaner,
+        onFeatureUnavailable = onFeatureUnavailable,
         onNeedToRequestPermissions = onNeedToRequestPermissions,
         androidPhotoPicker = androidPhotoPicker,
         mainDispatcher = mainDispatcher,
@@ -694,14 +699,9 @@ class PromptFeature private constructor(
                 certificatePicker.handleCertificateRequest(promptRequest)
             }
 
-            is File -> {
-                emitPromptDisplayedFact(promptName = "FilePrompt")
-                filePicker.handleFileRequest(promptRequest)
-            }
-
-            is Folder -> {
-                emitPromptDisplayedFact(promptName = "FolderPrompt")
-                filePicker.handleFolderRequest()
+            is File, is Folder -> {
+                onFeatureUnavailable()
+                dismissDialogRequest(promptRequest, session)
             }
 
             is Share -> handleShareRequest(promptRequest, session)
